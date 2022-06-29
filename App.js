@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Button, Pressable, Alert, TouchableOpacity, TextInput } from 'react-native';
 import { useFonts, Inter_900Black } from '@expo-google-fonts/inter';
 import { Audio } from 'expo-av';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { AntDesign, Entypo } from '@expo/vector-icons'; 
 
 /* import Sound from "react-native-sound";
  */
@@ -21,7 +23,10 @@ const App = () => {
     setSound(sound);
 
     console.log('Playing Sound');
-    await sound.playAsync();
+
+    /* COMMENTED OUT PLAYING SOUND */
+    
+   /*  await sound.playAsync(); */
   sound.setStatusAsync({ isLooping: true }) }
 
   const muteSound = () => {
@@ -108,9 +113,13 @@ if(change == word.word)
 
   return (
     <View style={styles.container}>
+      <Entypo name={!muted? "sound" : "sound-mute"} onPress={() => muteSound()} style={{position: "absolute", top: 50, right: 30}} size={24} color="#2196f3" />  
+     
+      {/* This is Openint Title wth Start button */}
+     
       {!started ? (
-      <View style={{alignItems: "center",
-      justifyContent: "center",}}>
+        <View style={{flex: 1, alignItems: "center",
+        justifyContent: "center",}}>
         <Text style={styles.mainTitle}>Guezz the Word!</Text>
         <TouchableOpacity
          onPress={startGame}
@@ -118,14 +127,18 @@ if(change == word.word)
          marginTop: 30,
          paddingVertical: 10,
          borderRadius: 4,
-         width: 200, 
-                
+         width: 200,    
         }}>
        <Text style={{color:"white", textAlign:"center"}}>START GAME</Text>
           </TouchableOpacity></View>):(
-    <View style={styles.container}>
+    
+    
+    /* this is the game page */
+    < /* style={styles.container} */>
     <View style={styles.text}>
-      <Text>Definition: {word.definition}</Text>
+    {/* <AntDesign name="arrowleft" style={{position: "absolute", top: 10}} size={24} color="black" /> */}  
+
+        <Text>Definition: {word.definition}</Text>
       <Text>Letters: {word.letters}</Text> 
       <Text>Word: {wordShow ? word.word : ""}</Text>
       <Text>You guessed: {name ? name : ""}</Text>
@@ -167,9 +180,8 @@ if(change == word.word)
           CLUE
         </Text>
        </Pressable>
-       {/* <Button title="Play Sound" onPress={playSound} /> */}
-       <Button title={!muted ? "mute" : "play"} onPress={muteSound} />
-      {/*  <TouchableOpacity 
+      
+    {/*  <TouchableOpacity 
         onPress={() => Alert.alert('Simple Button pressed')}
         style={{backgroundColor: "#2196f3",
          margin: 10,
@@ -184,7 +196,7 @@ if(change == word.word)
        </TouchableOpacity> */}
       </View>
       <StatusBar style="auto" />
-      </View>)}
+      </>)}
     </View>
   );
 }
@@ -193,12 +205,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFEEDD',
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 10,
+   /*  alignItems: 'center', */
+    /* justifyContent: 'center', */
   },
   text: {
-    flex: 0.3,
-    alignItems: 'center',
+    flex: 1,
+    /* alignItems: 'center', */
     justifyContent: 'center',
   },
   mainTitle: {
@@ -208,6 +221,7 @@ const styles = StyleSheet.create({
     fontSize: 40,
   },
   buttons: {
+   flex: 2, 
    flexDirection: "row",
    padding: 10,
     /* alignItems: 'center',
