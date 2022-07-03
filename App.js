@@ -42,22 +42,18 @@ const App = () => {
     }
     
   }
-  /* React.useEffect(() => {
-    return sound
-      ? () => {
-          console.log('Unloading Sound');
-          sound.unloadAsync();
-          sound.setStatusAsync({ isLooping: true }); }
-          
-      : undefined;
-  }, [sound]); */
- 
+  
 const randomWordURL = "https://random-words-api.vercel.app/word";
 const [word,setWord] = useState({})
 const [wordShow,setWordShow] = useState(false)
 const [clues,setClues] = useState()
 const [name, setName] = useState("");
 const [change, setChange] = useState("");
+const [randomized, setRandomized] = useState("");
+const [randomizedShow, setRandomizedShow] = useState(false);
+const [score, setScore] = useState(0);
+const [lives, setLives] = useState(3);
+const [newGame, setNewGame] = useState(true);
 
 
 
@@ -67,6 +63,14 @@ useEffect( () => {
 },[])
 
 const getRandomWord = async () => { 
+  let tempLives = lives;
+  if(tempLives<2)
+{
+  Alert.alert("game over")
+  setLives(3)
+  setScore(0)
+  setStarted(false)
+}
   const response = await fetch(randomWordURL)
   const data = await response.json()
   setWord({word: data[0].word, definition: data[0].definition, letters: data[0].word.length})
@@ -75,6 +79,11 @@ const getRandomWord = async () => {
   setWordShow(false)
   setChange("")
   setName("")
+  let randomizedWord = Array.from(data[0].word).sort( () => .5 - Math.random() );
+setRandomized(randomizedWord)
+  console.log(myArr)
+  setRandomizedShow(false)
+  
   }
 
   const startGame = () => {
@@ -85,27 +94,50 @@ const getRandomWord = async () => {
     setWordShow(!wordShow)
   }
   
-  const getClue = () => {
-    
-   const randomWordIndex = Math.floor(Math.random() * word.letters)
-   const letter = word.word.charAt(randomWordIndex);
-   const myArr = Array.from(word.word)
-   setClues(myArr)
-   console.log(randomWordIndex, letter, myArr)
-  }
-
-
+  
  const onSubmit2 = () => {
+if(lives<2)
+{
+  alert("game over")
+}
+
 console.log("word is: ",word.word)
 console.log("change is: ",change)
+let tempScore = score;
+let tempLives = lives;
 if(change){ 
-if(change == word.word)
+if(change.toLowerCase() == word.word.toLowerCase())
   {
     console.log("right")
+    if(randomizedShow)
+    {
+      
+      tempScore+=word.letters*5
+      /* let tempScore  = score+=word.letters*10 */
+      setScore(tempScore)
+    }
+    else{
+      
+      tempScore+=word.letters*10
+     setScore(tempScore)
+      
+    }
     getRandomWord()
   }
   else{
     console.log("wrong")
+    tempLives-=1
+    setLives(tempLives)
+    getRandomWord()
+    /* if(tempLives<1)
+{
+  Alert.alert("game over")
+  setLives(3)
+  setScore(0)
+  setStarted(false)
+} */
+
+
   }
 }
  setChange("")
@@ -113,7 +145,7 @@ if(change == word.word)
 
   return (
     <View style={styles.container}>
-      <Entypo name={!muted? "sound" : "sound-mute"} onPress={() => muteSound()} style={{position: "absolute", top: 50, right: 30}} size={24} color="#2196f3" />  
+      <Entypo name={!muted? "sound" : "sound-mute"} onPress={() => muteSound()} style={{position: "absolute", top: 50, right: 30, zIndex: 100}} size={24} color="#2196f3" />  
      
       {/* This is Openint Title wth Start button */}
      
@@ -134,18 +166,20 @@ if(change == word.word)
     
     
     /* this is the game page */
-    < /* style={styles.container} */>
+    <>
     <View style={styles.text}>
     {/* <AntDesign name="arrowleft" style={{position: "absolute", top: 10}} size={24} color="black" /> */}  
 
+        <Text style={styles.score}>Score: {score}</Text>
+        <Text style={styles.lives}>Lives: {lives}</Text>
+        <Text style={styles.points}>for {!randomizedShow ? word.letters*10 : word.letters*5 } points</Text>
         <Text>Definition: {word.definition}</Text>
       <Text>Letters: {word.letters}</Text> 
-      <Text>Word: {wordShow ? word.word : ""}</Text>
-      <Text>You guessed: {name ? name : ""}</Text>
+      {/* <Text>Word: {wordShow ? word.word : ""}</Text> */}
+      {/* <Text>You guessed: {name ? name : ""}</Text> */}
       <View style={{flexDirection: "row"}}> 
-      {/* {clues ? (clues.map(a=>{
-       return <Text key={a}>_</Text>
-     })):(<Text>a</Text>)} */}
+      {randomizedShow && (
+      <Text>Clue: {randomized}</Text>)}
      </View>
      <TextInput
         style={styles.input} 
@@ -158,17 +192,18 @@ if(change == word.word)
         value={change}
                 />
     </View>
-    <View /* style={styles.buttons} */>
+    <View style={styles.buttons}>
       <Button style={styles.button}
-       onPress={getRandomWord}
-        title="new word" />
+       onPress={()=> {getRandomWord(),setLives(lives-1)}}
+        title="New Word"
+        disabled={lives<2 ? true: false} />
       <Button style={styles.button}
        onPress={setWordShowFN}
-        title={wordShow ? "hidee" : "showe"} />
+        title={wordShow ? "hide" : "show"} />
       {/* <Button style={styles.button}
        title="clue" /> */}
        <Pressable 
-        onPress={getClue}
+        onPress={() => setRandomizedShow(true)}
         style={{backgroundColor: "#2196f3",
          margin: 10,
          paddingVertical: 10,
@@ -205,12 +240,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFEEDD',
-    padding: 10,
+    padding: 30,
    /*  alignItems: 'center', */
     /* justifyContent: 'center', */
   },
   text: {
-    flex: 1,
+    /* flex: 1, */
     /* alignItems: 'center', */
     justifyContent: 'center',
   },
@@ -221,7 +256,7 @@ const styles = StyleSheet.create({
     fontSize: 40,
   },
   buttons: {
-   flex: 2, 
+   /* flex: 2, */ 
    flexDirection: "row",
    padding: 10,
     /* alignItems: 'center',
@@ -229,8 +264,8 @@ const styles = StyleSheet.create({
   },
    button: {
    
-    margin: 50,
-    paddingHorizontal: 48,
+    margin: 5,
+    paddingHorizontal: 10,
      /* alignItems: 'center',
      justifyContent: 'center', */
    },
@@ -241,6 +276,19 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     backgroundColor: "white",
+  },
+  score: {
+    fontSize: 20,
+    fontWeight: "bold",
+    
+    /* position: "fixed", */
+   /*  top: 30, */
+  },
+  lives: {
+    fontSize: 20,
+    fontWeight: "bold",
+    /* position: "fixed", */
+    /* top: 60, */
   },
 
 });
